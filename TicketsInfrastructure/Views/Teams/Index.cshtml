@@ -1,0 +1,77 @@
+﻿@model IEnumerable<TicketsDomain.Model.Team>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Teams</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Country)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Country.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="teamCountByCountryChart"></div>
+
+@section Scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            fetch('/api/Charts/teamCountByCountry')
+                .then(response => response.json())
+                .then(data => {
+                    var dataArray = [['Country', 'Number of Teams']];
+                    data.forEach(item => {
+                        dataArray.push([item.country, item.count]);
+                    });
+
+                    var data = google.visualization.arrayToDataTable(dataArray);
+
+                    var options = {
+                        title: 'Team Count by Country',
+                        width: 600,
+                        height: 400,
+                        pieHole: 0.4
+                    };
+
+                    var chart = new google.visualization.PieChart(document.getElementById('teamCountByCountryChart'));
+                    chart.draw(data, options);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    </script>
+}

@@ -1,0 +1,21 @@
+﻿@model TicketsDomain.Model.Tournament
+
+@{
+    ViewData["Title"] = "Import";
+}
+
+<h1>Import Tournaments</h1>
+
+<div>
+    <h3>Choose an excel-file to import</h3>
+    @using (Html.BeginForm("Import", "Tournaments", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
+    {
+        <div>
+            Import an Excel-file:
+            <input type="file" name="fileExcel" id="fileExcel" />
+            <div>
+                <input type="submit" value="Import" class="btn btn-primary" />
+            </div>
+        </div>
+    }
+</div>

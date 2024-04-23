@@ -1,0 +1,99 @@
+﻿@model IEnumerable<TicketsDomain.Model.Customer>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Customers</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BirthDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhoneNumber)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BirthDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="customerCountByAgeChart"></div> <!-- Chart container -->
+@section Scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            fetch('/api/Charts/customerCountByAge')
+                .then(response => response.json())
+                .then(data => {
+                    var dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn('string', 'Age');
+                    dataTable.addColumn('number', 'Customer Count');
+
+                    data.forEach(item => {
+                        dataTable.addRow([item.AgeRange, item.Count]);
+                    });
+
+                    var options = {
+                        title: 'Customers by Age',
+                        width: 600,
+                        height: 400,
+                        legend: { position: 'none' },
+                        hAxis: {
+                            title: 'Age'
+                        },
+                        vAxis: {
+                            title: 'Customer Count',
+                            minValue: 0
+                        },
+                        chartArea: { width: '70%', height: '70%' },
+                        series: {
+                            0: { areaOpacity: 0.7 }
+                        }
+                    };
+
+                    var chart = new google.visualization.AreaChart(document.getElementById('customerCountByAgeChart'));
+                    chart.draw(dataTable, options);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+    </script>
+}
